@@ -174,6 +174,11 @@ return [
      */
     // 'permission.wildcard_permission' => Spatie\Permission\WildcardPermission::class,
 
+    /*
+     * Define the 'super-admin' role that will get all permissions automatically.
+     */
+    'super-admin' => 'super-admin',
+
     /* Cache-specific settings */
 
     'cache' => [

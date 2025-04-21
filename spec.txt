@@ -1,0 +1,99 @@
+1. Initial Setup and Planning
+Initialize the project using Laravel with Breeze and Inertia.js integration. Tailwind CSS will be the default styling tool.
+
+Define core entities and relationships such as patients, appointments, encounters, files, billing codes, invoices, and users.
+
+Plan user flows for each role: FrontDesk Clerk, Clinician, Biller, and Administrator.
+
+2. Authentication & Roles
+Set up user registration, login, and logout functionality.
+
+Define user roles and permissions (FrontDesk Clerk, Clinician, Biller, Administrator).
+
+Ensure role-based access to various parts of the system through middleware and route grouping.
+
+3. Patient Registration Module
+Create a form for registering new patients with fields for name, age, gender, contact info.
+
+Include automatic ID generation and QR code creation for each patient.
+
+Build a searchable listing of patients with filters by name or contact details.
+
+4. Appointment Scheduler
+Implement a calendar interface (day/week view) to display, book, reschedule, and cancel appointments.
+
+Enable selecting a patient and clinician when booking.
+
+Add visual indicators for appointment status (e.g., confirmed, cancelled).
+
+Schedule reminders (e.g., email or SMS) before appointments.
+
+5. EMR (Electronic Medical Record) / Encounter Module
+Create a structured SOAP note interface with input fields for:
+
+Subjective
+
+Objective
+
+Assessment
+
+Plan
+
+Include ENT-specific checkboxes or toggles (e.g., ear exam, nasal exam, throat exam).
+
+Add the ability to upload and preview related images and videos from scopes or external devices.
+
+Link each encounter to a patient and appointment for context.
+
+6. Billing & Invoicing Module
+Allow billers to select completed encounters and assign standardized billing codes (CPT and ICD).
+
+Implement a lookup system to find and select appropriate codes.
+
+Automatically calculate invoice amounts based on selected codes.
+
+Generate a printable/downloadable invoice for each encounter.
+
+Include a billing history for each patient.
+
+7. Dashboards by Role
+FrontDesk Clerk: Dashboard with today’s schedule, upcoming appointments, and quick patient registration access.
+
+Clinician: View their appointments, start new encounters, and access patient EMRs.
+
+Biller: View completed encounters needing billing, manage billing codes, and generate invoices.
+
+Administrator: Manage user accounts, assign roles, view overall clinic reports and metrics.
+
+8. Role-Based Navigation and Interface
+Customize the navigation bar and layout depending on the user's role.
+
+Ensure each role only sees relevant features and actions.
+
+Provide visual feedback on tasks (e.g., success messages, error alerts).
+
+9. File Handling and Storage
+Store all uploaded files (images, videos) in a structured way linked to encounters.
+
+Allow clinicians to preview or download files from the encounter interface.
+
+Organize files by patient and date for easy retrieval.
+
+10. Testing and Quality Assurance
+Manually test each module and user flow across all roles.
+
+Ensure validation is enforced on all forms.
+
+Check for any access control loopholes.
+
+Test mobile responsiveness and form usability.
+
+11. Deployment and Configuration
+Prepare for deployment on a production server (e.g., Forge + DigitalOcean).
+
+Set up environment configuration, database, file storage, and queue workers (for reminders).
+
+Ensure backups and secure storage of patient data.
+
+
+

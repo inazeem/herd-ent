@@ -34,6 +34,22 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $request->user(),
             ],
+            'can' => $request->user()
+                ? [
+                    'view_users' => $request->user()->can('view users'),
+                    'create_users' => $request->user()->can('create users'),
+                    'edit_users' => $request->user()->can('edit users'),
+                    'delete_users' => $request->user()->can('delete users'),
+                    'view_roles' => $request->user()->can('view roles'),
+                    'create_roles' => $request->user()->can('create roles'),
+                    'edit_roles' => $request->user()->can('edit roles'),
+                    'delete_roles' => $request->user()->can('delete roles'),
+                ]
+                : [],
+            'flash' => [
+                'message' => fn () => $request->session()->get('message'),
+                'error' => fn () => $request->session()->get('error'),
+            ],
         ];
     }
 }

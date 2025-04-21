@@ -39,6 +39,64 @@ const showingNavigationDropdown = ref(false);
                                 >
                                     Dashboard
                                 </NavLink>
+                                
+                                <!-- ENT Clinic Navigation Links -->
+                                <NavLink
+                                    v-if="$page.props.can?.view_patients"
+                                    :href="route('patients.index')"
+                                    :active="route().current('patients.*')"
+                                >
+                                    Patients
+                                </NavLink>
+                                
+                                <NavLink
+                                    v-if="$page.props.can?.view_appointments"
+                                    :href="route('appointments.index')"
+                                    :active="route().current('appointments.*')"
+                                >
+                                    Appointments
+                                </NavLink>
+                                
+                                <NavLink
+                                    v-if="$page.props.can?.view_encounters"
+                                    :href="route('encounters.index')"
+                                    :active="route().current('encounters.*')"
+                                >
+                                    Encounters
+                                </NavLink>
+                                
+                                <NavLink
+                                    v-if="$page.props.can?.view_invoices"
+                                    :href="route('invoices.index')"
+                                    :active="route().current('invoices.*')"
+                                >
+                                    Invoices
+                                </NavLink>
+                                
+                                <NavLink
+                                    v-if="$page.props.can?.manage_billing_codes"
+                                    :href="route('billing-codes.index')"
+                                    :active="route().current('billing-codes.*')"
+                                >
+                                    Billing Codes
+                                </NavLink>
+                                
+                                <NavLink
+                                    v-if="$page.props.can?.view_reports"
+                                    :href="route('reports.index')"
+                                    :active="route().current('reports.*')"
+                                >
+                                    Reports
+                                </NavLink>
+                                
+                                <!-- Admin-only links -->
+                                <NavLink
+                                    v-if="$page.props.can?.view_users"
+                                    :href="route('users.index')"
+                                    :active="route().current('users.*')"
+                                >
+                                    Users
+                                </NavLink>
                             </div>
                         </div>
 
@@ -145,6 +203,63 @@ const showingNavigationDropdown = ref(false);
                             :active="route().current('dashboard')"
                         >
                             Dashboard
+                        </ResponsiveNavLink>
+                        
+                        <!-- Responsive ENT Clinic Navigation Links -->
+                        <ResponsiveNavLink
+                            v-if="$page.props.can?.view_patients"
+                            :href="route('patients.index')"
+                            :active="route().current('patients.*')"
+                        >
+                            Patients
+                        </ResponsiveNavLink>
+                        
+                        <ResponsiveNavLink
+                            v-if="$page.props.can?.view_appointments"
+                            :href="route('appointments.index')"
+                            :active="route().current('appointments.*')"
+                        >
+                            Appointments
+                        </ResponsiveNavLink>
+                        
+                        <ResponsiveNavLink
+                            v-if="$page.props.can?.view_encounters"
+                            :href="route('encounters.index')"
+                            :active="route().current('encounters.*')"
+                        >
+                            Encounters
+                        </ResponsiveNavLink>
+                        
+                        <ResponsiveNavLink
+                            v-if="$page.props.can?.view_invoices"
+                            :href="route('invoices.index')"
+                            :active="route().current('invoices.*')"
+                        >
+                            Invoices
+                        </ResponsiveNavLink>
+                        
+                        <ResponsiveNavLink
+                            v-if="$page.props.can?.manage_billing_codes"
+                            :href="route('billing-codes.index')"
+                            :active="route().current('billing-codes.*')"
+                        >
+                            Billing Codes
+                        </ResponsiveNavLink>
+                        
+                        <ResponsiveNavLink
+                            v-if="$page.props.can?.view_reports"
+                            :href="route('reports.index')"
+                            :active="route().current('reports.*')"
+                        >
+                            Reports
+                        </ResponsiveNavLink>
+                        
+                        <ResponsiveNavLink
+                            v-if="$page.props.can?.view_users"
+                            :href="route('users.index')"
+                            :active="route().current('users.*')"
+                        >
+                            Users
                         </ResponsiveNavLink>
                     </div>
 
