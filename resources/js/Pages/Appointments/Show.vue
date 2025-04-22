@@ -6,25 +6,50 @@ const props = defineProps({
     appointment: Object,
 });
 
-// Format date helper function using native JavaScript
+// Format date helper function using dd/mm/yyyy format
 const formatDate = (dateString) => {
     if (!dateString) return '';
     try {
         const date = new Date(dateString);
-        const options = { month: 'short', day: 'numeric', year: 'numeric' };
-        return date.toLocaleDateString('en-US', options);
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        return `${day}/${month}/${year}`;
     } catch (e) {
         return dateString;
     }
 };
 
-// Format time helper function
+// Format time helper function to ensure HH:MM format
 const formatTime = (timeString) => {
     if (!timeString) return '';
+    
     try {
+        // Handle time strings in various formats
+        if (timeString.includes('T')) {
+            // Handle ISO datetime strings
+            const date = new Date(timeString);
+            if (!isNaN(date.getTime())) {
+                return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+            }
+        } else if (timeString.includes(':')) {
+            // Handle "HH:MM:SS" or "HH:MM" format
+            const parts = timeString.split(':');
+            if (parts.length >= 2) {
+                return `${parts[0].padStart(2, '0')}:${parts[1].padStart(2, '0')}`;
+            }
+        }
+        
+        // Fallback to default handling if above methods fail
         const time = new Date(`2000-01-01T${timeString}`);
-        return time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        if (!isNaN(time.getTime())) {
+            return `${String(time.getHours()).padStart(2, '0')}:${String(time.getMinutes()).padStart(2, '0')}`;
+        }
+        
+        // If all parsing attempts fail, return the original
+        return timeString;
     } catch (e) {
+        // Handle any format in HH:MM if possible or return original
         return timeString;
     }
 };

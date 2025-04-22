@@ -13,6 +13,54 @@ const props = defineProps({
 const search = ref(props.filters?.search || '');
 const currentFilter = ref(props.filters?.filter || 'upcoming');
 
+// Format date helper function to convert to dd/mm/yyyy format
+const formatDate = (dateString) => {
+    if (!dateString) return '';
+    try {
+        const date = new Date(dateString);
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        return `${day}/${month}/${year}`;
+    } catch (e) {
+        return dateString;
+    }
+};
+
+// Format time helper function to ensure HH:MM format
+const formatTime = (timeString) => {
+    if (!timeString) return '';
+    
+    try {
+        // Handle time strings in various formats
+        if (timeString.includes('T')) {
+            // Handle ISO datetime strings
+            const date = new Date(timeString);
+            if (!isNaN(date.getTime())) {
+                return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+            }
+        } else if (timeString.includes(':')) {
+            // Handle "HH:MM:SS" or "HH:MM" format
+            const parts = timeString.split(':');
+            if (parts.length >= 2) {
+                return `${parts[0].padStart(2, '0')}:${parts[1].padStart(2, '0')}`;
+            }
+        }
+        
+        // Fallback to default handling if above methods fail
+        const time = new Date(`2000-01-01T${timeString}`);
+        if (!isNaN(time.getTime())) {
+            return `${String(time.getHours()).padStart(2, '0')}:${String(time.getMinutes()).padStart(2, '0')}`;
+        }
+        
+        // If all parsing attempts fail, return the original
+        return timeString;
+    } catch (e) {
+        // Handle any format in HH:MM if possible or return original
+        return timeString;
+    }
+};
+
 // Update search results with debounce
 const updateSearch = debounce((value) => {
     router.get(route('appointments.index'), { 
@@ -138,8 +186,8 @@ const filterOptions = [
                                 <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                                     <tr v-for="appointment in appointments.data" :key="appointment.id">
                                         <td class="px-6 py-4 whitespace-nowrap">
-                                            {{ appointment.date }} <br>
-                                            {{ appointment.formatted_start_time }} - {{ appointment.formatted_end_time }}
+                                            <div class="font-medium">{{ formatDate(appointment.date) }}</div>
+                                            <div class="text-sm text-gray-500 dark:text-gray-400">{{ formatTime(appointment.start_time) }} - {{ formatTime(appointment.end_time) }}</div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             {{ appointment.patient?.first_name }} {{ appointment.patient?.last_name }}
