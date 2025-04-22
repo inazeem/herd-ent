@@ -14,38 +14,44 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        // Create Super Admin
+        // Create Administrator (formerly Super Admin)
         User::factory()->create([
-            'name' => 'Super Admin',
-            'email' => 'superadmin@example.com',
+            'name' => 'Administrator',
+            'email' => 'administrator@entclinic.com',
             'password' => Hash::make('password'),
-        ])->assignRole('super-admin');
+        ])->assignRole('administrator');
 
-        // Create Admin
+        // Create FrontDesk User
         User::factory()->create([
-            'name' => 'Admin User',
-            'email' => 'admin@example.com',
+            'name' => 'Front Desk',
+            'email' => 'frontdesk@entclinic.com',
             'password' => Hash::make('password'),
-        ])->assignRole('admin');
+        ])->assignRole('frontdesk');
 
-        // Create Manager
+        // Create Clinician User
         User::factory()->create([
-            'name' => 'Manager User',
-            'email' => 'manager@example.com',
+            'name' => 'Dr. Smith',
+            'email' => 'clinician@entclinic.com',
             'password' => Hash::make('password'),
-        ])->assignRole('manager');
+        ])->assignRole('clinician');
 
-        // Create Staff
+        // Create Biller User
         User::factory()->create([
-            'name' => 'Staff User',
-            'email' => 'staff@example.com',
+            'name' => 'Billing Staff',
+            'email' => 'biller@entclinic.com',
             'password' => Hash::make('password'),
-        ])->assignRole('staff');
+        ])->assignRole('biller');
 
-        // Create some users with random roles (excluding super-admin)
-        User::factory()->count(5)->create()->each(function ($user) {
-            $role = fake()->randomElement(['admin', 'manager', 'staff']);
-            $user->assignRole($role);
+        // Create additional clinicians
+        User::factory()->count(2)->create()->each(function ($user) {
+            $user->name = 'Dr. ' . $user->name;
+            $user->save();
+            $user->assignRole('clinician');
+        });
+
+        // Create additional frontdesk staff
+        User::factory()->count(1)->create()->each(function ($user) {
+            $user->assignRole('frontdesk');
         });
     }
 }

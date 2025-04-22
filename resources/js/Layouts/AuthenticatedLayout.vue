@@ -97,12 +97,37 @@ const showingNavigationDropdown = ref(false);
                                 >
                                     Users
                                 </NavLink>
+                                
+                                <!-- Role Management Link (Admin Only) -->
+                                <NavLink
+                                    v-if="$page.props.can?.view_roles"
+                                    :href="route('roles.index')"
+                                    :active="route().current('roles.*')"
+                                >
+                                    Roles
+                                </NavLink>
                             </div>
                         </div>
 
                         <div class="hidden sm:ms-6 sm:flex sm:items-center">
+                            <!-- Authentication Nav Links -->
+                            <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex" v-if="!$page.props.auth.user">
+                                <NavLink 
+                                    :href="route('login')"
+                                    :active="route().current('login')"
+                                >
+                                    Login
+                                </NavLink>
+                                <NavLink
+                                    :href="route('register')"
+                                    :active="route().current('register')"
+                                >
+                                    Register
+                                </NavLink>
+                            </div>
+
                             <!-- Settings Dropdown -->
-                            <div class="relative ms-3">
+                            <div class="relative ms-3" v-if="$page.props.auth.user">
                                 <Dropdown align="right" width="48">
                                     <template #trigger>
                                         <span class="inline-flex rounded-md">
@@ -133,6 +158,11 @@ const showingNavigationDropdown = ref(false);
                                             :href="route('profile.edit')"
                                         >
                                             Profile
+                                        </DropdownLink>
+                                        <DropdownLink
+                                            :href="route('password.confirm')"
+                                        >
+                                            Change Password
                                         </DropdownLink>
                                         <DropdownLink
                                             :href="route('logout')"
@@ -261,11 +291,31 @@ const showingNavigationDropdown = ref(false);
                         >
                             Users
                         </ResponsiveNavLink>
+                        
+                        <!-- Responsive Role Management Link -->
+                        <ResponsiveNavLink
+                            v-if="$page.props.can?.view_roles"
+                            :href="route('roles.index')"
+                            :active="route().current('roles.*')"
+                        >
+                            Roles
+                        </ResponsiveNavLink>
+                        
+                        <!-- Responsive Authentication Links (when not logged in) -->
+                        <template v-if="!$page.props.auth.user">
+                            <ResponsiveNavLink :href="route('login')" :active="route().current('login')">
+                                Login
+                            </ResponsiveNavLink>
+                            <ResponsiveNavLink :href="route('register')" :active="route().current('register')">
+                                Register
+                            </ResponsiveNavLink>
+                        </template>
                     </div>
 
                     <!-- Responsive Settings Options -->
                     <div
                         class="border-t border-gray-200 pb-1 pt-4"
+                        v-if="$page.props.auth.user"
                     >
                         <div class="px-4">
                             <div
@@ -281,6 +331,9 @@ const showingNavigationDropdown = ref(false);
                         <div class="mt-3 space-y-1">
                             <ResponsiveNavLink :href="route('profile.edit')">
                                 Profile
+                            </ResponsiveNavLink>
+                            <ResponsiveNavLink :href="route('password.confirm')">
+                                Change Password
                             </ResponsiveNavLink>
                             <ResponsiveNavLink
                                 :href="route('logout')"

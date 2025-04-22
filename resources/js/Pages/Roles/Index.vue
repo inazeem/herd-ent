@@ -78,17 +78,16 @@
 
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, Link, router } from '@inertiajs/vue3';
 import Pagination from '@/Components/Pagination.vue';
-import { router } from '@inertiajs/vue3';
 
 defineProps({
     roles: Object,
 });
 
-function deleteRole(role) {
-    if (confirm(`Are you sure you want to delete the "${role.name}" role?`)) {
+const deleteRole = (role) => {
+    if (window.confirm(`Are you sure you want to delete the "${role.name}" role?`)) {
         router.delete(route('roles.destroy', role.id));
     }
-}
+};
 </script>

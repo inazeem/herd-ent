@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Models\Invoice;
+use App\Policies\InvoicePolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
 
@@ -13,7 +15,7 @@ class AuthServiceProvider extends ServiceProvider
      * @var array<class-string, class-string>
      */
     protected $policies = [
-        //
+        Invoice::class => InvoicePolicy::class,
     ];
 
     /**
@@ -57,4 +59,4 @@ class AuthServiceProvider extends ServiceProvider
     {
         return new $provider($this->app);
     }
-} 
+}

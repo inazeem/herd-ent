@@ -54,11 +54,10 @@
                                             >
                                                 Edit
                                             </Link>
-                                            <button
-                                                v-if="$page.props.can.delete_users"
-                                                @click="deleteUser(user)"
-                                                class="text-red-600 hover:text-red-900"
-                                            >
+                                            <button 
+                                                v-if="$page.props.can.delete_users && user.id !== $page.props.auth.user.id" 
+                                                @click="deleteUser(user)" 
+                                                class="text-red-600 dark:text-red-400 hover:text-red-900">
                                                 Delete
                                             </button>
                                         </td>
@@ -77,16 +76,17 @@
 
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, Link, router } from '@inertiajs/vue3';
 import Pagination from '@/Components/Pagination.vue';
 
 defineProps({
     users: Object,
 });
 
-function deleteUser(user) {
-    if (confirm(`Are you sure you want to delete ${user.name}?`)) {
+// Add a method to handle user deletion with confirmation
+const deleteUser = (user) => {
+    if (window.confirm(`Are you sure you want to delete ${user.name}?`)) {
         router.delete(route('users.destroy', user.id));
     }
-}
-</script> 
+};
+</script>
