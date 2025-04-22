@@ -36,20 +36,36 @@ const submit = () => {
 
     <AuthenticatedLayout>
         <template #header>
-            <div class="flex justify-between items-center">
-                <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Create Patient</h2>
-            </div>
+            <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Create Patient</h2>
         </template>
 
         <div class="py-12">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
                 <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                    <div class="p-6 text-gray-900 dark:text-gray-100">
+                    <div class="p-4 sm:p-6 text-gray-900 dark:text-gray-100">
                         <form @submit.prevent="submit" class="space-y-6">
+                            <!-- Section Navigation for Mobile -->
+                            <div class="block md:hidden mb-4">
+                                <label for="section-nav" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                    Jump to Section
+                                </label>
+                                <select 
+                                    id="section-nav"
+                                    class="w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm"
+                                    onchange="document.getElementById(this.value).scrollIntoView({behavior: 'smooth'})"
+                                >
+                                    <option value="personal-info">Personal Information</option>
+                                    <option value="address-info">Address</option>
+                                    <option value="emergency-contact">Emergency Contact</option>
+                                    <option value="medical-info">Medical Information</option>
+                                    <option value="insurance-info">Insurance Information</option>
+                                </select>
+                            </div>
+                            
                             <!-- Personal Information Section -->
-                            <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-md">
+                            <div id="personal-info" class="bg-gray-50 dark:bg-gray-700 p-4 rounded-md">
                                 <h3 class="text-lg font-medium mb-4">Personal Information</h3>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <!-- First Name -->
                                     <div>
                                         <InputLabel for="first_name" value="First Name" />
@@ -115,6 +131,7 @@ const submit = () => {
                                             type="email"
                                             class="mt-1 block w-full"
                                             v-model="form.email"
+                                            inputmode="email"
                                         />
                                         <InputError class="mt-2" :message="form.errors.email" />
                                     </div>
@@ -128,6 +145,7 @@ const submit = () => {
                                             class="mt-1 block w-full"
                                             v-model="form.phone"
                                             required
+                                            inputmode="tel"
                                         />
                                         <InputError class="mt-2" :message="form.errors.phone" />
                                     </div>
@@ -135,11 +153,11 @@ const submit = () => {
                             </div>
 
                             <!-- Address Section -->
-                            <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-md">
+                            <div id="address-info" class="bg-gray-50 dark:bg-gray-700 p-4 rounded-md">
                                 <h3 class="text-lg font-medium mb-4">Address</h3>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <!-- Address -->
-                                    <div class="md:col-span-2">
+                                    <div class="sm:col-span-2">
                                         <InputLabel for="address" value="Address" />
                                         <TextInput
                                             id="address"
@@ -182,6 +200,7 @@ const submit = () => {
                                             type="text"
                                             class="mt-1 block w-full"
                                             v-model="form.postal_code"
+                                            inputmode="numeric"
                                         />
                                         <InputError class="mt-2" :message="form.errors.postal_code" />
                                     </div>
@@ -189,9 +208,9 @@ const submit = () => {
                             </div>
 
                             <!-- Emergency Contact Section -->
-                            <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-md">
+                            <div id="emergency-contact" class="bg-gray-50 dark:bg-gray-700 p-4 rounded-md">
                                 <h3 class="text-lg font-medium mb-4">Emergency Contact</h3>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <!-- Emergency Contact Name -->
                                     <div>
                                         <InputLabel for="emergency_contact_name" value="Contact Name" />
@@ -212,6 +231,7 @@ const submit = () => {
                                             type="tel"
                                             class="mt-1 block w-full"
                                             v-model="form.emergency_contact_phone"
+                                            inputmode="tel"
                                         />
                                         <InputError class="mt-2" :message="form.errors.emergency_contact_phone" />
                                     </div>
@@ -219,7 +239,7 @@ const submit = () => {
                             </div>
 
                             <!-- Medical Information Section -->
-                            <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-md">
+                            <div id="medical-info" class="bg-gray-50 dark:bg-gray-700 p-4 rounded-md">
                                 <h3 class="text-lg font-medium mb-4">Medical Information</h3>
                                 <div class="grid grid-cols-1 gap-4">
                                     <!-- Medical History -->
@@ -229,7 +249,7 @@ const submit = () => {
                                             id="medical_history"
                                             class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm"
                                             v-model="form.medical_history"
-                                            rows="4"
+                                            rows="3"
                                         ></textarea>
                                         <InputError class="mt-2" :message="form.errors.medical_history" />
                                     </div>
@@ -241,7 +261,7 @@ const submit = () => {
                                             id="allergies"
                                             class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm"
                                             v-model="form.allergies"
-                                            rows="3"
+                                            rows="2"
                                         ></textarea>
                                         <InputError class="mt-2" :message="form.errors.allergies" />
                                     </div>
@@ -253,7 +273,7 @@ const submit = () => {
                                             id="current_medications"
                                             class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm"
                                             v-model="form.current_medications"
-                                            rows="3"
+                                            rows="2"
                                         ></textarea>
                                         <InputError class="mt-2" :message="form.errors.current_medications" />
                                     </div>
@@ -261,9 +281,9 @@ const submit = () => {
                             </div>
 
                             <!-- Insurance Information Section -->
-                            <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-md">
+                            <div id="insurance-info" class="bg-gray-50 dark:bg-gray-700 p-4 rounded-md">
                                 <h3 class="text-lg font-medium mb-4">Insurance Information</h3>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <!-- Insurance Provider -->
                                     <div>
                                         <InputLabel for="insurance_provider" value="Insurance Provider" />
