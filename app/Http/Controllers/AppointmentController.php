@@ -7,6 +7,7 @@ use App\Models\Patient;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Carbon\Carbon;
 
 class AppointmentController extends Controller
 {
@@ -24,13 +25,51 @@ class AppointmentController extends Controller
      */
     public function index(Request $request)
     {
+        // Apply default filter if none is specified
+        $filter = $request->input('filter', 'upcoming');
+        
+        // Apply filter based on selected option
+        if ($filter === 'today') {
+            $request->merge([
+                'date_from' => Carbon::today()->format('Y-m-d'),
+                'date_to' => Carbon::today()->format('Y-m-d'),
+            ]);
+        } elseif ($filter === 'upcoming') {
+            $request->merge([
+                'date_from' => Carbon::today()->format('Y-m-d'),
+            ]);
+        } elseif ($filter === 'this_week') {
+            $request->merge([
+                'date_from' => Carbon::today()->format('Y-m-d'),
+                'date_to' => Carbon::today()->endOfWeek()->format('Y-m-d'),
+            ]);
+        } elseif ($filter === 'this_month') {
+            $request->merge([
+                'date_from' => Carbon::today()->format('Y-m-d'),
+                'date_to' => Carbon::today()->endOfMonth()->format('Y-m-d'),
+            ]);
+        } elseif ($filter === 'completed') {
+            $request->merge(['status' => 'completed']);
+        } elseif ($filter === 'cancelled') {
+            $request->merge(['status' => 'cancelled']);
+        } elseif ($filter === 'no_show') {
+            $request->merge(['status' => 'no-show']);
+        }
+        
         $query = Appointment::query()
             ->with(['patient', 'clinician'])
             ->when($request->input('search'), function ($query, $search) {
-                $query->whereHas('patient', function ($query) use ($search) {
-                    $query->where('first_name', 'like', "%{$search}%")
-                        ->orWhere('last_name', 'like', "%{$search}%")
-                        ->orWhere('patient_id', 'like', "%{$search}%");
+                $query->where(function($q) use ($search) {
+                    // Search in patient name
+                    $q->whereHas('patient', function ($query) use ($search) {
+                        $query->where('first_name', 'like', "%{$search}%")
+                            ->orWhere('last_name', 'like', "%{$search}%")
+                            ->orWhere('patient_id', 'like', "%{$search}%");
+                    })
+                    // Search in clinician name
+                    ->orWhereHas('clinician', function ($query) use ($search) {
+                        $query->where('name', 'like', "%{$search}%");
+                    });
                 });
             })
             ->when($request->input('status'), function ($query, $status) {
@@ -50,7 +89,7 @@ class AppointmentController extends Controller
 
         return Inertia::render('Appointments/Index', [
             'appointments' => $query->paginate(10)->withQueryString(),
-            'filters' => $request->only(['search', 'status', 'date_from', 'date_to', 'sort_field', 'sort_direction']),
+            'filters' => $request->only(['search', 'status', 'date_from', 'date_to', 'sort_field', 'sort_direction', 'filter']),
             'statuses' => [
                 'scheduled' => 'Scheduled',
                 'confirmed' => 'Confirmed',

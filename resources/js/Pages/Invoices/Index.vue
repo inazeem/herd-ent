@@ -93,7 +93,7 @@
 </template>
 
 <script setup>
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, Link, router } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import DocumentFilters from '@/Components/Filters/DocumentFilters.vue';
 import Pagination from '@/Components/Pagination.vue';

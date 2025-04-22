@@ -10,6 +10,34 @@ class BillingCode extends Model
 {
     use HasFactory;
     
+    /**
+     * Constants for billing code types.
+     */
+    public const TYPE_CONSULTATION = 'consultation';
+    public const TYPE_PROCEDURE = 'procedure';
+    public const TYPE_LABORATORY = 'laboratory';
+    public const TYPE_MEDICATION = 'medication';
+    public const TYPE_SUPPLY = 'supply';
+    // Add your new code type here
+    public const TYPE_IMAGING = 'imaging';
+    
+    /**
+     * Get all available billing code types.
+     *
+     * @return array
+     */
+    public static function getTypes(): array
+    {
+        return [
+            self::TYPE_CONSULTATION => 'Consultation',
+            self::TYPE_PROCEDURE => 'Procedure',
+            self::TYPE_LABORATORY => 'Laboratory',
+            self::TYPE_MEDICATION => 'Medication',
+            self::TYPE_SUPPLY => 'Supply',
+            self::TYPE_IMAGING => 'Imaging', // Your new code type
+        ];
+    }
+    
     protected $fillable = [
         'code',
         'description',

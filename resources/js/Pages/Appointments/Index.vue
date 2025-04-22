@@ -1,12 +1,56 @@
 <script setup>
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, Link, router } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import { ref, watch } from 'vue';
+import debounce from 'lodash/debounce';
 
-defineProps({
+const props = defineProps({
     appointments: Object,
     filters: Object,
     statuses: Object,
 });
+
+const search = ref(props.filters?.search || '');
+const currentFilter = ref(props.filters?.filter || 'upcoming');
+
+// Update search results with debounce
+const updateSearch = debounce((value) => {
+    router.get(route('appointments.index'), { 
+        search: value, 
+        filter: currentFilter.value 
+    }, {
+        preserveState: true,
+        replace: true
+    });
+}, 300);
+
+// Watch for changes to the search input
+watch(search, (value) => {
+    updateSearch(value);
+});
+
+// Handle filter change
+const handleFilterChange = (event) => {
+    const newFilter = event.target.value;
+    currentFilter.value = newFilter;
+    router.get(route('appointments.index'), {
+        filter: newFilter,
+        search: search.value
+    }, {
+        preserveState: true,
+        replace: false
+    });
+};
+
+const filterOptions = [
+    { key: 'today', label: 'Today' },
+    { key: 'upcoming', label: 'Upcoming' },
+    { key: 'this_week', label: 'This Week' },
+    { key: 'this_month', label: 'This Month' },
+    { key: 'completed', label: 'Completed' },
+    { key: 'cancelled', label: 'Cancelled' },
+    { key: 'no_show', label: 'No Show' },
+];
 </script>
 
 <template>
@@ -28,6 +72,43 @@ defineProps({
 
         <div class="py-12">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                <!-- Search and filter controls -->
+                <div class="mb-6 bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
+                    <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+                        <div class="flex flex-wrap gap-4 items-center">
+                            <!-- Search input -->
+                            <div class="relative flex-grow">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                    </svg>
+                                </div>
+                                <input 
+                                    type="text" 
+                                    v-model="search"
+                                    placeholder="Search by patient or clinician name..." 
+                                    class="pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md w-full bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-indigo-500 focus:border-indigo-500"
+                                />
+                            </div>
+                            
+                            <!-- Filter dropdown -->
+                            <div class="flex items-center">
+                                <label for="filter" class="mr-2 text-sm font-medium text-gray-700 dark:text-gray-300">Filter:</label>
+                                <select 
+                                    id="filter" 
+                                    v-model="currentFilter"
+                                    @change="handleFilterChange"
+                                    class="border border-gray-300 dark:border-gray-600 rounded-md p-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-indigo-500 focus:border-indigo-500"
+                                >
+                                    <option v-for="option in filterOptions" :key="option.key" :value="option.key">
+                                        {{ option.label }}
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
                 <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                     <div class="p-6 text-gray-900 dark:text-gray-100">
                         <div v-if="appointments.data.length > 0">
