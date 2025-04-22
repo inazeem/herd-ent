@@ -81,13 +81,7 @@ const showingNavigationDropdown = ref(false);
                                     Billing Codes
                                 </NavLink>
                                 
-                                <NavLink
-                                    v-if="$page.props.can?.view_reports"
-                                    :href="route('reports.index')"
-                                    :active="route().current('reports.*')"
-                                >
-                                    Reports
-                                </NavLink>
+                                
                                 
                                 <!-- Admin-only links -->
                                 <NavLink
@@ -276,13 +270,7 @@ const showingNavigationDropdown = ref(false);
                             Billing Codes
                         </ResponsiveNavLink>
                         
-                        <ResponsiveNavLink
-                            v-if="$page.props.can?.view_reports"
-                            :href="route('reports.index')"
-                            :active="route().current('reports.*')"
-                        >
-                            Reports
-                        </ResponsiveNavLink>
+                        
                         
                         <ResponsiveNavLink
                             v-if="$page.props.can?.view_users"

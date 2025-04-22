@@ -85,7 +85,7 @@ Route::middleware('auth')->group(function () {
     // Reports routes - accessible by users with reports permissions
     Route::middleware(['permission:view reports'])->group(function () {
         Route::get('/reports', [\App\Http\Controllers\ReportController::class, 'index'])->name('reports.index');
-        Route::get('/reports/dashboard', [\App\Http\Controllers\ReportController::class, 'dashboard'])->name('reports.dashboard');
+        Route::get('/dashboard', [\App\Http\Controllers\ReportController::class, 'dashboard'])->name('dashboard');
         Route::get('/reports/financial', [\App\Http\Controllers\ReportController::class, 'financialReport'])->name('reports.financial');
         Route::get('/reports/clinical', [\App\Http\Controllers\ReportController::class, 'clinicalReport'])->name('reports.clinical');
         Route::get('/reports/patients', [\App\Http\Controllers\ReportController::class, 'patientReport'])->name('reports.patients');

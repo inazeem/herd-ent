@@ -112,7 +112,7 @@ class ReportController extends Controller
 
         // Get today's appointments with more details
         $todayAppointments = Appointment::whereDate('date', Carbon::today())
-            ->with('patient', 'user')
+            ->with('patient', 'clinician')
             ->orderBy('start_time')
             ->get();
 
@@ -127,7 +127,7 @@ class ReportController extends Controller
         $endOfMonth = Carbon::now()->endOfMonth();
         
         $calendarAppointments = Appointment::whereBetween('date', [$startOfMonth, $endOfMonth])
-            ->with('patient:id,first_name,last_name', 'user:id,name')
+            ->with('patient:id,first_name,last_name', 'clinician:id,name')
             ->get()
             ->map(function ($appointment) {
                 return [
@@ -136,7 +136,7 @@ class ReportController extends Controller
                     'start' => $appointment->date->format('Y-m-d') . 'T' . $appointment->start_time,
                     'end' => $appointment->date->format('Y-m-d') . 'T' . $appointment->end_time,
                     'status' => $appointment->status,
-                    'provider' => $appointment->user->name,
+                    'provider' => $appointment->clinician->name,
                     'url' => '/appointments/' . $appointment->id,
                 ];
             });
@@ -168,21 +168,32 @@ class ReportController extends Controller
         $revenueTodayAmount = Invoice::whereDate('created_at', Carbon::today())->sum('total_amount');
         
         // Provider performance snapshot
-        $providerPerformance = User::role('doctor')
+        $providerPerformance = User::role('clinician')
             ->withCount(['appointments' => function($query) {
                 $query->whereMonth('date', Carbon::now()->month);
             }])
             ->withCount(['encounters' => function($query) {
                 $query->whereMonth('encounter_date', Carbon::now()->month);
             }])
-            ->withSum(['encounters as revenue' => function($query) {
-                $query->whereMonth('encounter_date', Carbon::now()->month);
-            }], 'total_charge')
-            ->orderByDesc('encounters_count')
-            ->limit(5)
-            ->get();
+            ->get()
+            ->take(5);
+            
+        // Calculate revenue manually since there's no total_charge column
+        foreach ($providerPerformance as $provider) {
+            // Get all encounters for this provider this month
+            $encounterIds = Encounter::where('clinician_id', $provider->id)
+                ->whereMonth('encounter_date', Carbon::now()->month)
+                ->pluck('id');
+                
+            // Calculate total revenue from invoices associated with these encounters
+            $revenue = Invoice::whereIn('encounter_id', $encounterIds)->sum('total_amount');
+            $provider->revenue = $revenue;
+        }
+        
+        // Sort by encounter count and limit to top 5
+        $providerPerformance = $providerPerformance->sortByDesc('encounters_count')->values()->take(5);
 
-        return Inertia::render('Reports/Dashboard', [
+        return Inertia::render('Dashboard', [
             'counts' => [
                 'patients' => [
                     'total' => $patientCount,
@@ -305,7 +316,7 @@ class ReportController extends Controller
         
         // Encounters by clinician
         $encountersByUser = Encounter::whereBetween('encounter_date', [$startDate, $endDate])
-            ->join('users', 'encounters.user_id', '=', 'users.id')
+            ->join('users', 'encounters.clinician_id', '=', 'users.id')
             ->select(
                 'users.id',
                 'users.name',
@@ -543,8 +554,8 @@ class ReportController extends Controller
         $endDate = $request->input('end_date', Carbon::now()->toDateString());
         $userId = $request->input('user_id');
 
-        // Base query for providers with the doctor role
-        $providersQuery = User::role('doctor')
+        // Base query for providers with the clinician role
+        $providersQuery = User::role('clinician')
             ->withCount(['appointments' => function($query) use ($startDate, $endDate) {
                 $query->whereBetween('date', [$startDate, $endDate]);
             }])
@@ -558,10 +569,7 @@ class ReportController extends Controller
             }])
             ->withCount(['encounters' => function($query) use ($startDate, $endDate) {
                 $query->whereBetween('encounter_date', [$startDate, $endDate]);
-            }])
-            ->withSum(['encounters as revenue' => function($query) use ($startDate, $endDate) {
-                $query->whereBetween('encounter_date', [$startDate, $endDate]);
-            }], 'total_charge');
+            }]);
 
         // If specific user is requested, filter for that user
         if ($userId) {
@@ -570,8 +578,17 @@ class ReportController extends Controller
 
         $providers = $providersQuery->orderByDesc('encounters_count')->get();
 
-        // Calculate metrics for each provider
-        $providers = $providers->map(function($provider) {
+        // Calculate revenue metrics for each provider
+        foreach ($providers as $provider) {
+            // Get all encounters for this provider within the date range
+            $encounterIds = Encounter::where('clinician_id', $provider->id)
+                ->whereBetween('encounter_date', [$startDate, $endDate])
+                ->pluck('id');
+            
+            // Calculate revenue from invoices linked to these encounters
+            $revenue = Invoice::whereIn('encounter_id', $encounterIds)->sum('total_amount');
+            $provider->revenue = $revenue;
+            
             // Calculate no-show rate
             $provider->no_show_rate = $provider->appointments_count > 0
                 ? round(($provider->no_show_appointments_count / $provider->appointments_count) * 100, 1)
@@ -584,7 +601,7 @@ class ReportController extends Controller
 
             // Calculate average revenue per encounter
             $provider->avg_revenue_per_encounter = $provider->encounters_count > 0
-                ? round($provider->revenue / $provider->encounters_count, 2)
+                ? round($revenue / $provider->encounters_count, 2)
                 : 0;
 
             // Get patient count for this provider
@@ -592,9 +609,7 @@ class ReportController extends Controller
                 ->where('clinician_id', $provider->id)
                 ->distinct('patient_id')
                 ->count('patient_id');
-
-            return $provider;
-        });
+        }
 
         // Daily activity for selected provider
         $dailyActivity = null;
@@ -615,7 +630,7 @@ class ReportController extends Controller
             $commonBillingCodes = DB::table('encounters')
                 ->join('encounter_billing_code', 'encounters.id', '=', 'encounter_billing_code.encounter_id')
                 ->join('billing_codes', 'encounter_billing_code.billing_code_id', '=', 'billing_codes.id')
-                ->where('encounters.user_id', $userId)
+                ->where('encounters.clinician_id', $userId)
                 ->whereBetween('encounters.encounter_date', [$startDate, $endDate])
                 ->select(
                     'billing_codes.code',
